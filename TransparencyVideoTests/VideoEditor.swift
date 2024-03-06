@@ -14,7 +14,7 @@ class VideoEditor {
     ) async {
         let asset = AVURLAsset(url: url)
         let extract = try! await extractData(videoAsset: asset)
-
+    
         try! await exportVideo(outputPath: outputDir, asset: asset, videoComposition: extract)
     }
 
@@ -103,6 +103,29 @@ class VideoEditor {
         videoComposition.instructions = [mainInstruction]
         
         videoComposition.renderSize = naturalSize
+        
+        // Adds the iPhone image
+        let image = NSImage(contentsOf: Bundle(for: VideoEditor.self).url(forResource: "iPhone", withExtension: ".png")!)!
+        let imageLayer = CALayer()
+
+        imageLayer.contents = image
+        imageLayer.frame = CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height)
+        
+        let overlayLayer = CALayer()
+
+        overlayLayer.frame = CGRect(origin: CGPoint.zero, size: naturalSize)
+        overlayLayer.addSublayer(imageLayer)
+
+        let parentLayer = CALayer()
+        let videoLayer = CALayer()
+
+        parentLayer.frame = CGRect(origin: CGPoint.zero, size: naturalSize)
+        videoLayer.frame = CGRect(origin: CGPoint.zero, size: naturalSize)
+
+        parentLayer.addSublayer(videoLayer)
+        parentLayer.addSublayer(overlayLayer)
+
+        videoComposition.animationTool = AVVideoCompositionCoreAnimationTool(postProcessingAsVideoLayer: videoLayer, in: parentLayer)
 
         return videoComposition
     }
