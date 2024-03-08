@@ -96,36 +96,14 @@ class VideoEditor {
 
         let layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
         let videoComposition = AVMutableVideoComposition()
-
+ 
         videoComposition.frameDuration = CMTimeMake(value: 1, timescale: 30)
 
         mainInstruction.layerInstructions = [layerInstruction]
         videoComposition.instructions = [mainInstruction]
         
-        videoComposition.renderSize = naturalSize
-        
-        // Adds the iPhone image
-        let image = NSImage(contentsOf: Bundle(for: VideoEditor.self).url(forResource: "iPhone", withExtension: ".png")!)!
-        let imageLayer = CALayer()
-
-        imageLayer.contents = image
-        imageLayer.frame = CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height)
-        
-        let overlayLayer = CALayer()
-
-        overlayLayer.frame = CGRect(origin: CGPoint.zero, size: naturalSize)
-        overlayLayer.addSublayer(imageLayer)
-
-        let parentLayer = CALayer()
-        let videoLayer = CALayer()
-
-        parentLayer.frame = CGRect(origin: CGPoint.zero, size: naturalSize)
-        videoLayer.frame = CGRect(origin: CGPoint.zero, size: naturalSize)
-
-        parentLayer.addSublayer(videoLayer)
-        parentLayer.addSublayer(overlayLayer)
-
-        videoComposition.animationTool = AVVideoCompositionCoreAnimationTool(postProcessingAsVideoLayer: videoLayer, in: parentLayer)
+        // Increases the canvas
+        videoComposition.renderSize = .init(width: naturalSize.width + 500, height: naturalSize.height + 500)
 
         return videoComposition
     }
